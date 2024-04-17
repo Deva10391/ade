@@ -16,16 +16,18 @@ export async function POST(req: Request, res: Response) {
     console.log('body is: ', body);
     const { file_key, file_name } = body;
     console.log(file_key, file_name);
-    const x = await loadS3IntoPinecone(file_key);
-    console.log('x is: ', x);
+    const obj = {
+      fileKey: file_key,
+      pdfName: file_name,
+      pdfUrl: getS3Url(file_key),
+      userId,
+    }
+    console.log(obj);
+    // const x = await loadS3IntoPinecone(file_key);
+    // console.log('x is: ', x);
     const chat_id = await db
       .insert(chats)
-      .values({
-        fileKey: file_key,
-        pdfName: file_name,
-        pdfUrl: getS3Url(file_key),
-        userId,
-      })
+      .values(obj)
       .returning({
         insertedId: chats.id,
       });
