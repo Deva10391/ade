@@ -10,10 +10,11 @@ import { getEmbeddings } from "./embeddings";
 import { convertToAscii } from "./utils";
 
 export const getPineconeClient = () => {
-  return new Pinecone({
+  const x = new Pinecone({
     environment: process.env.PINECONE_ENVIRONMENT!,
     apiKey: process.env.PINECONE_API_KEY!,
-  });
+  })
+  return x;
 };
 
 type PDFPage = {
@@ -33,25 +34,26 @@ export async function loadS3IntoPinecone(fileKey: string) {
   console.log("loading pdf into memory" + file_name);
   const loader = new PDFLoader(file_name);
   const pages = (await loader.load()) as PDFPage[];
-  console.log(loader, pages);
 
   // 2. split and segment the pdf
   const documents = await Promise.all(pages.map(prepareDocument));
-  console.log(documents);
 
   // 3. vectorise and embed individual documents
   const vectors = await Promise.all(documents.flat().map(embedDocument));
-  console.log(vectors);
+  console.log("vectors done", vectors);
 
   // 4. upload to pinecone
   const client = await getPineconeClient();
   const pineconeIndex = await client.index("chatpdf");
   const namespace = pineconeIndex.namespace(convertToAscii(fileKey));
-  console.log(client, pineconeIndex, namespace);
+  console.log("upload done, c", client);
+  console.log("upload done, p", pineconeIndex);
+  console.log("upload done, n", namespace);
 
   console.log("inserting vectors into pinecone");
   const x = await namespace.upsert(vectors);
-  console.log(x);
+  console.log('vectors inserted', x);
+  console.log('loadS3IntoPinecone was a success')
   return documents[0];
 }
 

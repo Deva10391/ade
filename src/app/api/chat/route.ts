@@ -11,7 +11,9 @@ export const runtime = "edge";
 const config = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
+console.log('openai config done\n', config);
 const openai = new OpenAIApi(config);
+console.log('openai part done\n', openai);
 
 export async function POST(req: Request) {
   try {
@@ -69,5 +71,7 @@ export async function POST(req: Request) {
       },
     });
     return new StreamingTextResponse(stream);
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+  }
 }

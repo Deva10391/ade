@@ -7,15 +7,25 @@ export async function downloadFromS3(file_key: string): Promise<string> {
         region: "ap-southeast-2",
         credentials: {
           accessKeyId: process.env.NEXT_PUBLIC_S3_ACCESS_KEY_ID!,
-          secretAccessKey: process.env.NEXT_PUBLIC_S3_SECRET_ACCESS_KEY!,
+          secretAccessKey: process.env.NEXT_PUBLIC_S3_SECRET_ACCESS_KEY_ID!,
         },
       });
       const params = {
-        Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
+        Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
         Key: file_key,
       };
 
       const obj = await s3.getObject(params);
+
+      const folderPath = 'C:\\tmp';
+
+      try {
+        fs.mkdirSync(folderPath, { recursive: true });
+        console.log('Folder created successfully!');
+      } catch (err) {
+        console.error('Error creating folder:', err);
+      }
+
       const file_name = `/tmp/elliott${Date.now().toString()}.pdf`;
 
       if (obj.Body instanceof require("stream").Readable) {
