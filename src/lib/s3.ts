@@ -17,7 +17,7 @@ export async function uploadToS3(
         "uploads/" + Date.now().toString() + file.name.replace(" ", "-");
 
       const params = {
-        Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
+        Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
         Key: file_key,
         Body: file,
       };

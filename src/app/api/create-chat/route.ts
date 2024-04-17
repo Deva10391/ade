@@ -23,8 +23,8 @@ export async function POST(req: Request, res: Response) {
       userId,
     }
     console.log(obj);
-    // const x = await loadS3IntoPinecone(file_key);
-    // console.log('x is: ', x);
+    const x = await loadS3IntoPinecone(file_key);
+    console.log('x is: ', x);
     const chat_id = await db
       .insert(chats)
       .values(obj)

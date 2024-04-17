@@ -3,7 +3,6 @@ import { UserButton, auth } from "@clerk/nextjs";
 import Link from "next/link";
 import { ArrowRight, LogIn } from "lucide-react";
 import FileUpload from "@/components/FileUpload";
-import { checkSubscription } from "@/lib/subscription";
 import SubscriptionButton from "@/components/SubscriptionButton";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
@@ -12,7 +11,7 @@ import { eq } from "drizzle-orm";
 export default async function Home() {
   const { userId } = await auth();
   const isAuth = !!userId;
-  const isPro = await checkSubscription();
+  const isPro = true;
   let firstChat;
   if (userId) {
     firstChat = await db.select().from(chats).where(eq(chats.userId, userId));
