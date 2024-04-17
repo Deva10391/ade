@@ -9,7 +9,7 @@ export async function uploadToS3(
         region: "ap-southeast-2",
         credentials: {
           accessKeyId: process.env.NEXT_PUBLIC_S3_ACCESS_KEY_ID!,
-          secretAccessKey: process.env.NEXT_PUBLIC_S3_SECRET_ACCESS_KEY!,
+          secretAccessKey: process.env.NEXT_PUBLIC_S3_SECRET_ACCESS_KEY_ID!,
         },
       });
 
@@ -24,12 +24,23 @@ export async function uploadToS3(
       s3.putObject(
         params,
         (err: any, data: PutObjectCommandOutput | undefined) => {
+          if (err) {
+            console.error("Error uploading file:", err);
+            // Handle error on the server-side (e.g., reject a promise)
+            return reject(err);
+          }
+        
+          console.log("File uploaded successfully:", data);
+
           return resolve({
             file_key,
             file_name: file.name,
           });
         }
       );
+
+      console.log('s3 is: ', s3);
+      console.log('params are: ', params);
     } catch (error) {
       reject(error);
     }

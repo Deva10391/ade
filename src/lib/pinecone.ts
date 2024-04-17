@@ -25,7 +25,7 @@ type PDFPage = {
 
 export async function loadS3IntoPinecone(fileKey: string) {
   // 1. obtain the pdf -> downlaod and read from pdf
-  console.log("downloading s3 into file system");
+  console.log("downloading s3 into file system ...");
   const file_name = await downloadFromS3(fileKey);
   if (!file_name) {
     throw new Error("could not download from s3");
@@ -33,21 +33,25 @@ export async function loadS3IntoPinecone(fileKey: string) {
   console.log("loading pdf into memory" + file_name);
   const loader = new PDFLoader(file_name);
   const pages = (await loader.load()) as PDFPage[];
+  console.log(loader, pages);
 
   // 2. split and segment the pdf
   const documents = await Promise.all(pages.map(prepareDocument));
+  console.log(documents);
 
   // 3. vectorise and embed individual documents
   const vectors = await Promise.all(documents.flat().map(embedDocument));
+  console.log(vectors);
 
   // 4. upload to pinecone
   const client = await getPineconeClient();
   const pineconeIndex = await client.index("chatpdf");
   const namespace = pineconeIndex.namespace(convertToAscii(fileKey));
+  console.log(client, pineconeIndex, namespace);
 
   console.log("inserting vectors into pinecone");
-  await namespace.upsert(vectors);
-
+  const x = await namespace.upsert(vectors);
+  console.log(x);
   return documents[0];
 }
 

@@ -13,9 +13,11 @@ export async function POST(req: Request, res: Response) {
   }
   try {
     const body = await req.json();
+    console.log('body is: ', body);
     const { file_key, file_name } = body;
     console.log(file_key, file_name);
-    await loadS3IntoPinecone(file_key);
+    const x = await loadS3IntoPinecone(file_key);
+    console.log('x is: ', x);
     const chat_id = await db
       .insert(chats)
       .values({
@@ -28,6 +30,8 @@ export async function POST(req: Request, res: Response) {
         insertedId: chats.id,
       });
 
+    console.log('chat_id is: ', chat_id);
+
     return NextResponse.json(
       {
         chat_id: chat_id[0].insertedId,
@@ -35,7 +39,7 @@ export async function POST(req: Request, res: Response) {
       { status: 200 }
     );
   } catch (error) {
-    console.error(error);
+    // console.log('error is: ', error);
     return NextResponse.json(
       { error: "internal server error" },
       { status: 500 }

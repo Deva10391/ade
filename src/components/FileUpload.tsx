@@ -25,6 +25,7 @@ const FileUpload = () => {
         file_key,
         file_name,
       });
+      console.log('response: ', response);
       return response.data;
     },
   });
