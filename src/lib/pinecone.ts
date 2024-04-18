@@ -9,6 +9,18 @@ import {
 import { getEmbeddings } from "./embeddings";
 import { convertToAscii } from "./utils";
 
+const json001 = {
+  "name": "chatpdf",
+  "dimension": 1536,
+  "metric": "cosine",
+  "spec": {
+    "serverless": {
+      "cloud": "aws",
+      "region": "us-east-1"
+    }
+  }
+}
+
 export const getPineconeClient = () => {
   const x = new Pinecone({
     environment: process.env.PINECONE_ENVIRONMENT!,
@@ -34,6 +46,7 @@ export async function loadS3IntoPinecone(fileKey: string) {
   console.log("loading pdf into memory" + file_name);
   const loader = new PDFLoader(file_name);
   const pages = (await loader.load()) as PDFPage[];
+  console.log('done');
 
   // 2. split and segment the pdf
   const documents = await Promise.all(pages.map(prepareDocument));
@@ -43,7 +56,8 @@ export async function loadS3IntoPinecone(fileKey: string) {
   console.log("vectors done", vectors);
 
   // 4. upload to pinecone
-  const client = await getPineconeClient();
+  const client = await getPineconeClient()
+
   const pineconeIndex = await client.index("chatpdf");
   const namespace = pineconeIndex.namespace(convertToAscii(fileKey));
   console.log("upload done, c", client);
@@ -61,15 +75,16 @@ async function embedDocument(doc: Document) {
   try {
     const embeddings = await getEmbeddings(doc.pageContent);
     const hash = md5(doc.pageContent);
-
-    return {
+    const x = {
       id: hash,
       values: embeddings,
       metadata: {
         text: doc.metadata.text,
         pageNumber: doc.metadata.pageNumber,
       },
-    } as PineconeRecord;
+    }
+    console.log('something is: ', x)
+    return x as PineconeRecord;
   } catch (error) {
     console.log("error embedding document", error);
     throw error;
